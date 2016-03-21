@@ -1,0 +1,1 @@
+koolshare的小宝 宝大开发的游戏系列服务器（SS），支持udp in udp和udp in tcp模式，完美支持游戏NAT2。
