@@ -1,0 +1,6 @@
+Gmae-Server(XiaoBao)一键安装脚本 Changelog
+===========================================
+2.0
+   * Fix       修正端口占用检测
+1.0
+   + Add       实现Gmae-Server(XiaoBao)一键安装
