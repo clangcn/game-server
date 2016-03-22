@@ -46,7 +46,7 @@ fun_status()
     fun_check_run
     case $? in
     0)
-      echo "${ProgramName} running with PID ${PID}"
+      echo "${ProgramName} running with PID \033[40;32m${PID}\033[0m"
       ;;
     1)
       echo "${ProgramName} not running, remove PID file ${PID_FILE}"
@@ -79,14 +79,14 @@ fun_start()
         echo "start failed"
         return 1
     fi
-    echo -e "${ProgramName} is running, ProcessID is \033[40;32m${PID}\033[0m."
+    echo "${ProgramName} is running, ProcessID is \033[40;32m${PID}\033[0m."
     echo "read ${LOGFILE} for log"
     return 0
 }
 
 fun_stop(){
     if fun_check_run; then
-        echo -e "Stopping ${ProgramName} with PID \033[40;32m${PID}\033[0m."
+        echo "Stopping ${ProgramName} with PID \033[40;32m${PID}\033[0m."
         kill $PID
         rm -f $PID_FILE
     else
