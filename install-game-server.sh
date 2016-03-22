@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="1.0"
+version="2.0"
 # Check if user is root
 function rootness(){
     if [[ $EUID -ne 0 ]]; then
@@ -95,6 +95,37 @@ function disable_selinux(){
     fi
 }
 
+# Check port
+function fun_check_port(){
+    strServerPort="$1"
+    if [ ${strServerPort} -ge 1 ] && [ ${strServerPort} -le 65535 ]; then
+        checkServerPort=`netstat -ntul | grep "\b:${strServerPort}\b"`
+        if [ -n "${checkServerPort}" ]; then
+            [ -n "${checkServerPort}" ] && serverport="${strServerPort}"
+            echo -e "Error: Port \033[32m${strServerPort}\033[0m is \033[31m\033[01mused\033[0m,view relevant port:"
+            [ -n "${checkServerPort}" ] && netstat -apn | grep "\b:${strServerPort}\b"
+            fun_input_port
+        else
+            serverport="${strServerPort}"
+        fi
+    else
+        echo "Input error! Please input correct numbers."
+    fi
+}
+
+# input port
+function fun_input_port(){
+    server_port="8838"
+    echo -e "Please input Server Port [1-65535](\033[31m\033[01mDon't the same SSH Port ${sshport}\033[0m):"
+    read -p "(Default Server Port: ${server_port}):" serverport
+    [ -z "${serverport}" ] && serverport="${server_port}"
+    expr ${serverport} + 0 &>/dev/null
+    if [ $? -eq 0 ]; then
+        fun_check_port "${serverport}"
+    else
+        echo "Input error! Please input correct numbers."
+    fi
+}
 
 function pre_install_clang(){
 # install
@@ -125,28 +156,8 @@ read -p "(You VPS IP:$defIP, Default IP: $IP):" IP
 if [ "$IP" = "" ]; then
     IP="0.0.0.0"
 fi
-while true
-do
-    server_port="8838"
-    echo -e "Please input Server Port [1-65535](\\033[31m\\033[01mDon't the same SSH Port(${sshport})\\033[0m ):"
-    read -p "(Default Server Port: ${server_port}):" serverport
-    [ -z "${serverport}" ] && serverport="8838"
-    expr ${serverport} + 0 &>/dev/null
-    if [ $? -eq 0 ]; then
-        if [ ${serverport} -ge 1 ] && [ ${serverport} -le 65535 ]; then
-            if [ "${serverport}" = "${sshport}" ]; then
-                serverport=`expr ${serverport} + 1`
-            else
-                serverport=${server_port}
-            fi
-            break
-        else
-            echo "Input error! Please input correct numbers."
-        fi
-    else
-        echo "Input error! Please input correct numbers."
-    fi
-done
+
+fun_input_port
 
 shadowsocks_pwd=`openssl rand -base64 12`
 read -p "Please input Password (Default Password: ${shadowsocks_pwd}):" shadowsockspwd
