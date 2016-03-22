@@ -46,7 +46,7 @@ fun_status()
     fun_check_run
     case $? in
     0)
-      echo "${ProgramName} running with PID ${PID}"
+      echo -e "${ProgramName} running with PID \033[40;32m${PID}\033[0m"
       ;;
     1)
       echo "${ProgramName} not running, remove PID file ${PID_FILE}"
@@ -63,7 +63,7 @@ fun_start()
         mkdir -p $PID_DIR || echo "failed creating PID directory ${PID_DIR}"; exit 1
     fi
     if fun_check_run; then
-        echo "${ProgramName} already running with PID ${PID}"
+        echo -e "${ProgramName} already running with PID \033[40;32m${PID}\033[0m"
         return 0
     fi
     if [ ! -r ${CONFIGFILE} ]; then
