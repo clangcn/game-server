@@ -279,12 +279,7 @@ if [ "$set_iptables" == 'y' ]; then
 fi
 
 /etc/init.d/game-server start
-echo "####################################################################"
-echo "# Install Game-Server(XiaoBao) for CentOS Debian or Ubuntu(32/64bit)"
-echo "# Intro: http://clangcn.com"
-echo "# Author: Clang <admin@clangcn.com>"
-echo "####################################################################"
-echo ""
+fun_clang.cn
 #install successfully
     echo ""
     echo "Congratulations, Game-Server(XiaoBao) install completed!"
