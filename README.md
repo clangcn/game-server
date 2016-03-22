@@ -16,7 +16,7 @@ Debian / Ubuntu:
     screen -S game-server
     wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/install-game-server.sh -O /root/install-game-server.sh
     chmod 500 /root/install-game-server.sh
-    /root/install-game-server.sh
+    /root/install-game-server.sh install
 
 CentOS:
 
@@ -24,7 +24,15 @@ CentOS:
     screen -S game-server
     wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/install-game-server.sh -O /root/install-game-server.sh
     chmod 500 /root/install-game-server.sh
-    /root/install-game-server.sh
+    /root/install-game-server.sh install
+
+### UnInstall
+
+    /root/install-game-server.sh uninstall
+
+### Update
+
+    /root/install-game-server.sh update
 
 ### 服务器管理
 
