@@ -218,6 +218,7 @@ cat > /root/config.json<<-EOF
     "method":"${ssmethod}"
 }
 EOF
+chmod 400 /root/config.json
 rm -f /root/game-server
 if [ "${Is_64bit}" == 'y' ] ; then
     if [ ! -s /root/game-server ]; then
