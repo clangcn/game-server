@@ -407,6 +407,7 @@ function update_game_server_clang(){
         fi
         /etc/init.d/game-server start
         echo "Game-Server(XiaoBao) update success!"
+        ${str_game_dir}/game-server -version
     else
         echo "Game-Server(XiaoBao) Not install!"
     fi
