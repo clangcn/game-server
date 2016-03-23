@@ -102,7 +102,8 @@ function fun_check_port(){
     if [ ${strServerPort} -ge 1 ] && [ ${strServerPort} -le 65535 ]; then
         checkServerPort=`netstat -ntul | grep "\b:${strServerPort}\b"`
         if [ -n "${checkServerPort}" ]; then
-            echo -e "Error: Port \033[32m${strServerPort}\033[0m is \033[31m\033[01mused\033[0m,view relevant port:"
+            echo ""
+            echo -e "\033[31m\033[01mError:\033[0m Port \033[32m${strServerPort}\033[0m is \033[35m\033[01mused\033[0m,view relevant port:"
             netstat -apn | grep "\b:${strServerPort}\b"
             fun_input_port
         else
@@ -116,7 +117,8 @@ function fun_check_port(){
 # input port
 function fun_input_port(){
     server_port="8838"
-    echo -e "Please input Server Port [1-65535](Don't the same SSH Port \033[31m\033[01m${sshport}\033[0m):"
+    echo ""
+    echo -e "Please input Server Port [1-65535](Don't the same SSH Port \033[31m\033[01m${sshport}\033[0m)"
     read -p "(Default Server Port: ${server_port}):" serverport
     [ -z "${serverport}" ] && serverport="${server_port}"
     expr ${serverport} + 0 &>/dev/null
@@ -151,7 +153,7 @@ if [ "${defIP}" = "" ]; then
     defIP=$(curl -s -4 icanhazip.com)
 fi
 IP="0.0.0.0"
-echo "Please input VPS IP:"
+echo "Please input VPS IP"
 read -p "(You VPS IP:$defIP, Default IP: $IP):" IP
 if [ "$IP" = "" ]; then
     IP="0.0.0.0"
@@ -166,7 +168,7 @@ if [ "${shadowsockspwd}" = "" ]; then
 fi
 
 ssmethod="chacha20"
-echo "Please input Encryption method(chacha20, aes-256-cfb, bf-cfb, des-cfb, rc4):"
+echo "Please input Encryption method(chacha20, aes-256-cfb, bf-cfb, des-cfb, rc4)"
 read -p "(Default method: ${ssmethod}):" ssmethod
 if [ "${ssmethod}" = "" ]; then
     ssmethod="chacha20"
