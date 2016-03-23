@@ -132,10 +132,10 @@ function pre_install_clang(){
 echo "==============Install packs=============="
 if [ "${OS}" == 'CentOS' ]; then
     #yum -y update
-    yum -y install nano net-tools openssl-devel wget iptables policycoreutils curl curl-devel
+    yum -y install nano net-tools openssl-devel wget iptables policycoreutils curl curl-devel psmisc
 else
     apt-get update -y
-    apt-get install -y wget nano screen openssl libcurl4-openssl-dev iptables curl
+    apt-get install -y wget nano screen openssl libcurl4-openssl-dev iptables curl psmisc
 fi
 clear
 #config setting
