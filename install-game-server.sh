@@ -346,9 +346,10 @@ function uninstall_game_server_clang(){
             update-rc.d -f game-server remove
         fi
         rm -f /usr/bin/game-server /etc/init.d/game-server /var/run/game-server.pid
-        rm -fr ${str_game_dir}
         if [ "${save_config}" == 'n' ]; then
-            rm -f ${str_game_dir}/config.json
+            rm -fr ${str_game_dir}
+        else
+            rm -f ${str_game_dir}/game-server ${str_game_dir}/game-server.log
         fi
         echo "Game-Server(XiaoBao) uninstall success!"
     else
