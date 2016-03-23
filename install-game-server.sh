@@ -350,50 +350,55 @@ function uninstall_game_server_clang(){
 }
 ############################### update function##################################
 function update_game_server_clang(){
-    checkos
-    check_centosversion
-    check_os_bit
-    [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
-    rm -f ${str_game_dir}/game-server /root/game-server /root/game-server.log
-    if [ "${Is_64bit}" == 'y' ] ; then
-        if [ ! -s /root/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O ${str_game_dir}/game-server; then
-                echo "Failed to download game-server file!"
-                exit 1
+    if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
+        checkos
+        check_centosversion
+        check_os_bit
+        killall game-server
+        [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
+        rm -f ${str_game_dir}/game-server /root/game-server /root/game-server.log
+        if [ "${Is_64bit}" == 'y' ] ; then
+            if [ ! -s /root/game-server ]; then
+                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O ${str_game_dir}/game-server; then
+                    echo "Failed to download game-server file!"
+                    exit 1
+                fi
+            fi
+        else
+             if [ ! -s /root/game-server ]; then
+                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O ${str_game_dir}/game-server; then
+                    echo "Failed to download game-server file!"
+                    exit 1
+                fi
             fi
         fi
+        [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
+        if [ "${OS}" == 'CentOS' ]; then
+            if [ ! -s /etc/init.d/game-server ]; then
+                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init -O /etc/init.d/game-server; then
+                    echo "Failed to download game-server.init file!"
+                    exit 1
+                fi
+            fi
+            chmod +x /etc/init.d/game-server
+        else
+            if [ ! -s /etc/init.d/game-server ]; then
+                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init -O /etc/init.d/game-server; then
+                    echo "Failed to download game-server.init file!"
+                    exit 1
+                fi
+            fi
+            chmod +x /etc/init.d/game-server
+            update-rc.d -f game-server defaults
+        fi
+        ln -s ${str_game_dir}/game-server /usr/bin/
+        if [ -s /root/config.json ] && [ ! -a ${str_game_dir}/config.json ]; then
+            mv /root/config.json ${str_game_dir}/config.json
+        fi
+        echo "Game-Server(XiaoBao) update success!"
     else
-         if [ ! -s /root/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O ${str_game_dir}/game-server; then
-                echo "Failed to download game-server file!"
-                exit 1
-            fi
-        fi
+        echo "Game-Server(XiaoBao) Not install!"
     fi
-    [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
-    if [ "${OS}" == 'CentOS' ]; then
-        if [ ! -s /etc/init.d/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init -O /etc/init.d/game-server; then
-                echo "Failed to download game-server.init file!"
-                exit 1
-            fi
-        fi
-        chmod +x /etc/init.d/game-server
-    else
-        if [ ! -s /etc/init.d/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init -O /etc/init.d/game-server; then
-                echo "Failed to download game-server.init file!"
-                exit 1
-            fi
-        fi
-        chmod +x /etc/init.d/game-server
-        update-rc.d -f game-server defaults
-    fi
-    ln -s ${str_game_dir}/game-server /usr/bin/
-    if [ -s /root/config.json ] && [ ! -a ${str_game_dir}/config.json ]; then
-        mv /root/config.json ${str_game_dir}/config.json
-    fi
-    echo "Game-Server(XiaoBao) update success!"
 }
 
 clear
