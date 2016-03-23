@@ -122,12 +122,7 @@ function fun_input_port(){
     echo -e "Please input Server Port [1-65535](Don't the same SSH Port \033[31m\033[01m${sshport}\033[0m)"
     read -p "(Default Server Port: ${server_port}):" serverport
     [ -z "${serverport}" ] && serverport="${server_port}"
-    expr ${serverport} + 0 &>/dev/null
-    if [ $? -eq 0 ]; then
-        fun_check_port "${serverport}"
-    else
-        echo "Input error! Please input correct numbers."
-    fi
+    fun_check_port "${serverport}"
 }
 
 function pre_install_clang(){
