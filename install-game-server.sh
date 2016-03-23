@@ -111,6 +111,7 @@ function fun_check_port(){
         fi
     else
         echo "Input error! Please input correct numbers."
+        fun_input_port
     fi
 }
 
