@@ -312,6 +312,7 @@ function configure_game_server_clang(){
 ############################### uninstall function##################################
 function uninstall_game_server_clang(){
      if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
+        echo "==============Uninstall Game-Server(XiaoBao)=============="
         save_config="n"
         echo  -e "\033[33mDo you want to keep the configuration file?\033[0m"
         read -p "(if you want please input: y,Default [no]):" save_config
@@ -339,7 +340,8 @@ function uninstall_game_server_clang(){
         else
             update-rc.d -f game-server remove
         fi
-        rm -f /usr/bin/game-server ${str_game_dir}/game-server ${str_game_dir}/game-server.log /etc/init.d/game-server /var/run/game-server.pid
+        rm -f /usr/bin/game-server /etc/init.d/game-server /var/run/game-server.pid
+        rm -fr ${str_game_dir}
         if [ "${save_config}" == 'n' ]; then
             rm -f ${str_game_dir}/config.json
         fi
@@ -351,12 +353,13 @@ function uninstall_game_server_clang(){
 ############################### update function##################################
 function update_game_server_clang(){
     if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
+        echo "==============Update Game-Server(XiaoBao)=============="
         checkos
         check_centosversion
         check_os_bit
         killall game-server
         [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
-        rm -f ${str_game_dir}/game-server /root/game-server /root/game-server.log
+        rm -f /usr/bin/game-server ${str_game_dir}/game-server /root/game-server /root/game-server.log /etc/init.d/game-server
         if [ "${Is_64bit}" == 'y' ] ; then
             if [ ! -s /root/game-server ]; then
                 if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O ${str_game_dir}/game-server; then
@@ -395,6 +398,7 @@ function update_game_server_clang(){
         if [ -s /root/config.json ] && [ ! -a ${str_game_dir}/config.json ]; then
             mv /root/config.json ${str_game_dir}/config.json
         fi
+        /etc/init.d/game-server start
         echo "Game-Server(XiaoBao) update success!"
     else
         echo "Game-Server(XiaoBao) Not install!"
