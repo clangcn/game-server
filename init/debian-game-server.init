@@ -16,10 +16,11 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ProgramName="Game-Server(XiaoBao)"
+ProgramPath="/usr/local/game-server"
 NAME=game-server
-BIN=/root/game-server
-CONFIGFILE=/root/config.json
-LOGFILE=/root/game-server.log
+BIN=${ProgramPath}/$NAME
+CONFIGFILE=${ProgramPath}/config.json
+LOGFILE=${ProgramPath}/game-server.log
 SCRIPTNAME=/etc/init.d/$NAME
 PID_DIR=/var/run
 PID_FILE=$PID_DIR/game-server.pid

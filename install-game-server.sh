@@ -7,7 +7,8 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="2.0"
+version="3.0"
+str_game_dir="/usr/local/game-server"
 # Check if user is root
 function rootness(){
     if [[ $EUID -ne 0 ]]; then
@@ -101,9 +102,8 @@ function fun_check_port(){
     if [ ${strServerPort} -ge 1 ] && [ ${strServerPort} -le 65535 ]; then
         checkServerPort=`netstat -ntul | grep "\b:${strServerPort}\b"`
         if [ -n "${checkServerPort}" ]; then
-            [ -n "${checkServerPort}" ] && serverport="${strServerPort}"
             echo -e "Error: Port \033[32m${strServerPort}\033[0m is \033[31m\033[01mused\033[0m,view relevant port:"
-            [ -n "${checkServerPort}" ] && netstat -apn | grep "\b:${strServerPort}\b"
+            netstat -apn | grep "\b:${strServerPort}\b"
             fun_input_port
         else
             serverport="${strServerPort}"
@@ -116,7 +116,7 @@ function fun_check_port(){
 # input port
 function fun_input_port(){
     server_port="8838"
-    echo -e "Please input Server Port [1-65535](\033[31m\033[01mDon't the same SSH Port ${sshport}\033[0m):"
+    echo -e "Please input Server Port [1-65535](Don't the same SSH Port \033[31m\033[01m${sshport}\033[0m):"
     read -p "(Default Server Port: ${server_port}):" serverport
     [ -z "${serverport}" ] && serverport="${server_port}"
     expr ${serverport} + 0 &>/dev/null
@@ -204,11 +204,13 @@ echo ""
 echo "Press any key to start..."
 
 char=`get_char`
-cd $HOME
+[ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
+cd ${str_game_dir}
+echo $PWD
 
 
 # Config shadowsocks
-cat > /root/config.json<<-EOF
+cat > ${str_game_dir}/config.json<<-EOF
 {
     "server":"${IP}",
     "server_port":${serverport},
@@ -218,26 +220,24 @@ cat > /root/config.json<<-EOF
     "method":"${ssmethod}"
 }
 EOF
-chmod 400 /root/config.json
-rm -f /root/game-server
+chmod 400 ${str_game_dir}/config.json
+rm -f ${str_game_dir}/game-server
 if [ "${Is_64bit}" == 'y' ] ; then
-    if [ ! -s /root/game-server ]; then
-        if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O /root/game-server; then
+    if [ ! -s ${str_game_dir}/game-server ]; then
+        if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O ${str_game_dir}/game-server; then
             echo "Failed to download game-server file!"
             exit 1
         fi
     fi
-    chmod 500 /root/game-server
 else
-     if [ ! -s /root/game-server ]; then
-        if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O /root/game-server; then
+     if [ ! -s ${str_game_dir}/game-server ]; then
+        if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O ${str_game_dir}/game-server; then
             echo "Failed to download game-server file!"
             exit 1
         fi
     fi
-    chmod 500 /root/game-server
 fi
-
+[ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
 if [ "${OS}" == 'CentOS' ]; then
     if [ ! -s /etc/init.d/game-server ]; then
         if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init -O /etc/init.d/game-server; then
@@ -277,7 +277,7 @@ if [ "$set_iptables" == 'y' ]; then
         chmod +x /etc/network/if-pre-up.d/iptables
     fi
 fi
-
+ln -s ${str_game_dir}/game-server /usr/bin/
 /etc/init.d/game-server start
 fun_clang.cn
 #install successfully
@@ -303,12 +303,35 @@ function install_game_server_clang(){
 }
 ############################### configure function##################################
 function configure_game_server_clang(){
-     #echo -e "Please edit file:\033[32m \033[01m/root/config.json\033[0m"
-     nano /root/config.json
+    if [ -s ${str_game_dir}/config.json ]; then
+        nano ${str_game_dir}/config.json
+    else
+        echo "Game-Server(XiaoBao) configuration file not found!"
+    fi
 }
 ############################### uninstall function##################################
 function uninstall_game_server_clang(){
-    if [ -s /etc/init.d/game-server ] || [ -s /root/game-server ] ; then
+     if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
+        save_config="n"
+        echo  -e "\033[33mDo you want to keep the configuration file?\033[0m"
+        read -p "(if you want please input: y,Default [no]):" save_config
+
+        case "${save_config}" in
+        y|Y|Yes|YES|yes|yES|yEs|YeS|yeS)
+        echo ""
+        echo "You will keep the configuration file!"
+        save_config="y"
+        ;;
+        n|N|No|NO|no|nO)
+        echo ""
+        echo "You will NOT to keep the configuration file!"
+        save_config="n"
+        ;;
+        *)
+        echo ""
+        echo "will NOT to keep the configuration file!"
+        save_config="n"
+        esac
         checkos
         /etc/init.d/game-server stop
         if [ "${OS}" == 'CentOS' ]; then
@@ -316,7 +339,10 @@ function uninstall_game_server_clang(){
         else
             update-rc.d -f game-server remove
         fi
-        rm -f /root/game-server /root/config.json /root/game-server.log /etc/init.d/game-server
+        rm -f /usr/bin/game-server ${str_game_dir}/game-server ${str_game_dir}/game-server.log /etc/init.d/game-server /var/run/game-server.pid
+        if [ "${save_config}" == 'n' ]; then
+            rm -f ${str_game_dir}/config.json
+        fi
         echo "Game-Server(XiaoBao) uninstall success!"
     else
         echo "Game-Server(XiaoBao) Not install!"
@@ -324,27 +350,52 @@ function uninstall_game_server_clang(){
 }
 ############################### update function##################################
 function update_game_server_clang(){
+    checkos
+    check_centosversion
     check_os_bit
-    rm -f /root/game-server
+    [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
+    rm -f ${str_game_dir}/game-server /root/game-server /root/game-server.log
     if [ "${Is_64bit}" == 'y' ] ; then
         if [ ! -s /root/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O /root/game-server; then
+            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O ${str_game_dir}/game-server; then
                 echo "Failed to download game-server file!"
                 exit 1
             fi
         fi
-        chmod 500 /root/game-server
     else
          if [ ! -s /root/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O /root/game-server; then
+            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O ${str_game_dir}/game-server; then
                 echo "Failed to download game-server file!"
                 exit 1
             fi
         fi
-        chmod 500 /root/game-server
+    fi
+    [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
+    if [ "${OS}" == 'CentOS' ]; then
+        if [ ! -s /etc/init.d/game-server ]; then
+            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init -O /etc/init.d/game-server; then
+                echo "Failed to download game-server.init file!"
+                exit 1
+            fi
+        fi
+        chmod +x /etc/init.d/game-server
+    else
+        if [ ! -s /etc/init.d/game-server ]; then
+            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init -O /etc/init.d/game-server; then
+                echo "Failed to download game-server.init file!"
+                exit 1
+            fi
+        fi
+        chmod +x /etc/init.d/game-server
+        update-rc.d -f game-server defaults
+    fi
+    ln -s ${str_game_dir}/game-server /usr/bin/
+    if [ -s /root/config.json ] && [ ! -a ${str_game_dir}/config.json ]; then
+        mv /root/config.json ${str_game_dir}/config.json
     fi
     echo "Game-Server(XiaoBao) update success!"
 }
+
 clear
 fun_clang.cn
 rootness
