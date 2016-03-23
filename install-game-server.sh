@@ -160,20 +160,20 @@ if [ "$IP" = "" ]; then
 fi
 
 fun_input_port
-
+echo ""
 shadowsocks_pwd=`openssl rand -base64 12`
 read -p "Please input Password (Default Password: ${shadowsocks_pwd}):" shadowsockspwd
 if [ "${shadowsockspwd}" = "" ]; then
     shadowsockspwd="${shadowsocks_pwd}"
 fi
-
+echo ""
 ssmethod="chacha20"
 echo "Please input Encryption method(chacha20, aes-256-cfb, bf-cfb, des-cfb, rc4)"
 read -p "(Default method: ${ssmethod}):" ssmethod
 if [ "${ssmethod}" = "" ]; then
     ssmethod="chacha20"
 fi
-
+echo ""
 set_iptables="n"
     echo  -e "\033[33mDo you want to set iptables?\033[0m"
     read -p "(if you want please input: y,Default [no]):" set_iptables
@@ -193,13 +193,14 @@ set_iptables="n"
     esac
 
 echo ""
-echo "Check your input:"
+echo "============== Check your input =============="
 echo -e "Your Server IP:\033[32m\033[01m${defIP}\033[0m"
 echo -e "Your Set IP:\033[32m\033[01m${IP}\033[0m"
 echo -e "Your Server Port:\033[32m\033[01m${serverport}\033[0m"
 echo -e "Your Password:\033[32m\033[01m${shadowsockspwd}\033[0m"
 echo -e "Your Encryption Method:\033[32m\033[01m${ssmethod}\033[0m"
 echo -e "Your SSH Port:\033[32m \033[01m${sshport}\033[0m"
+echo "=============================================="
 echo ""
 echo "Press any key to start...or Press Ctrl+c to cancel"
 
