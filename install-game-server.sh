@@ -300,7 +300,7 @@ function install_game_server_clang(){
     check_centosversion
     check_os_bit
     disable_selinux
-    if [ -s ${str_game_dir}/game-server ]; then
+    if [ -s ${str_game_dir}/game-server ] && [ -s /etc/init.d/game-server ]; then
         echo "Game-Server(XiaoBao) is installed!"
     else
         pre_install_clang
