@@ -180,22 +180,20 @@ set_iptables="n"
 
     case "${set_iptables}" in
     y|Y|Yes|YES|yes|yES|yEs|YeS|yeS)
-    echo ""
     echo "You will set iptables!"
     set_iptables="y"
     ;;
     n|N|No|NO|no|nO)
-    echo ""
     echo "You will NOT set iptables!"
     set_iptables="n"
     ;;
     *)
-    echo ""
     echo "The iptables is not set!"
     set_iptables="n"
     esac
 
 echo ""
+echo "Check your input:"
 echo -e "Your Server IP:\033[32m\033[01m${defIP}\033[0m"
 echo -e "Your Set IP:\033[32m\033[01m${IP}\033[0m"
 echo -e "Your Server Port:\033[32m\033[01m${serverport}\033[0m"
@@ -203,7 +201,7 @@ echo -e "Your Password:\033[32m\033[01m${shadowsockspwd}\033[0m"
 echo -e "Your Encryption Method:\033[32m\033[01m${ssmethod}\033[0m"
 echo -e "Your SSH Port:\033[32m \033[01m${sshport}\033[0m"
 echo ""
-echo "Press any key to start..."
+echo "Press any key to start...or Press Ctrl+c to cancel"
 
 char=`get_char`
 [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
