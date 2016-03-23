@@ -350,6 +350,7 @@ function uninstall_game_server_clang(){
     else
         echo "Game-Server(XiaoBao) Not install!"
     fi
+    echo ""
 }
 ############################### update function##################################
 function update_game_server_clang(){
@@ -404,6 +405,7 @@ function update_game_server_clang(){
     else
         echo "Game-Server(XiaoBao) Not install!"
     fi
+    echo ""
 }
 
 clear
