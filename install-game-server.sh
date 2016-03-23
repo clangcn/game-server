@@ -391,6 +391,7 @@ function update_game_server_clang(){
                 fi
             fi
             chmod +x /etc/init.d/game-server
+            chkconfig --add game-server
         else
             if [ ! -s /etc/init.d/game-server ]; then
                 if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init -O /etc/init.d/game-server; then
