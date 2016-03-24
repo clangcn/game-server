@@ -9,8 +9,21 @@ export PATH
 #===============================================================================================
 version="4.0"
 str_game_dir="/usr/local/game-server"
+
+function fun_clang.cn(){
+    echo ""
+    echo "#####################################################################"
+    echo "# Install Game-Server(XiaoBao) for CentOS Debian or Ubuntu(32/64bit)#"
+    echo "# Intro: http://clang.cn                                            #"
+    echo "# Author: Clang <admin@clangcn.com>                                 #"
+    echo "# Version ${version}                                                #"
+    echo "#####################################################################"
+    echo ""
+}
+
 # Check if user is root
 function rootness(){
+    fun_clang.cn
     if [[ $EUID -ne 0 ]]; then
        echo "Error:This script must be run as root!" 1>&2
        exit 1
@@ -25,16 +38,6 @@ function get_char(){
     stty -raw
     stty echo
     stty $SAVEDSTTY
-}
-function fun_clang.cn(){
-    echo ""
-    echo "####################################################################"
-    echo " Install Game-Server(XiaoBao) for CentOS Debian or Ubuntu(32/64bit)"
-    echo " Intro: http://clang.cn"
-    echo " Author: Clang <admin@clangcn.com>"
-    echo " Version ${version}"
-    echo "####################################################################"
-    echo ""
 }
 
 # Check OS
