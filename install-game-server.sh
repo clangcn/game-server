@@ -13,20 +13,20 @@ str_game_dir="/usr/local/game-server"
 function fun_clang.cn(){
     echo ""
     echo "#####################################################################"
-    echo "# Install Game-Server(XiaoBao) for CentOS Debian or Ubuntu(32/64bit)#"
-    echo "# Intro: http://clang.cn                                            #"
-    echo "# Author: Clang <admin@clangcn.com>                                 #"
-    echo "# Version ${version}                                                #"
+    echo "# Install Game-Server(XiaoBao) for CentOS Debian or Ubuntu(32/64bit)"
+    echo "# Intro: http://clang.cn"
+    echo "# Author: Clang <admin@clangcn.com>"
+    echo "# Version ${version}"
     echo "#####################################################################"
     echo ""
 }
 
 # Check if user is root
 function rootness(){
-    fun_clang.cn
     if [[ $EUID -ne 0 ]]; then
-       echo "Error:This script must be run as root!" 1>&2
-       exit 1
+        fun_clang.cn
+        echo "Error:This script must be run as root!" 1>&2
+        exit 1
     fi
 }
 
@@ -423,7 +423,6 @@ function update_game_server_clang(){
     fi
     echo ""
 }
-
 clear
 rootness
 # Initialization
