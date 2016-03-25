@@ -34,7 +34,8 @@ CentOS:
 
     Usage: /etc/init.d/game-server {start|stop|restart|status}
 
-### 多用户配置文件范例，按照下面格式修改默认的/usr/local/game-server/config.json文件：
+### 多用户配置文件范例
+按照下面格式修改默认的/usr/local/game-server/config.json文件：
 
     {
         "server":"0.0.0.0",
