@@ -33,3 +33,22 @@ CentOS:
 ### 服务器管理
 
     Usage: /etc/init.d/game-server {start|stop|restart|status}
+
+### 多用户配置文件范例，按照下面格式修改默认的/usr/local/game-server/config.json文件：
+
+    {
+        "server":"0.0.0.0",
+        "local_port":1080,
+        "timeout": 600,
+        "method":"chacha20",
+        "port_password":
+        {
+            "8339": "abcd1234",
+            "8340": "Clang.cn"
+        },
+        "_comment":
+        {
+            "8339": "hanleilei",
+            "8340": "me"
+        }
+    }
