@@ -219,11 +219,18 @@ function pre_install_clang(){
 cat > ${str_game_dir}/config.json<<-EOF
 {
     "server":"${IP}",
-    "server_port":${serverport},
     "local_port":1080,
-    "password":"${shadowsockspwd}",
-    "timeout":600,
-    "method":"${ssmethod}"
+    "timeout": 600,
+    "method":"${ssmethod}",
+    "fast_open": true,
+    "port_password":
+    {
+        "${serverport}": "${shadowsockspwd}"
+    },
+    "_comment":
+    {
+        "${serverport}": "The server port comment"
+    }
 }
 EOF
     chmod 400 ${str_game_dir}/config.json
