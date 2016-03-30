@@ -273,9 +273,9 @@ EOF
 
     if [ "$set_iptables" == 'y' ]; then
         # iptables config
-        iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-        iptables -I INPUT -p tcp --dport ${serverport} -j ACCEPT
         iptables -I INPUT -p udp --dport ${serverport} -j ACCEPT
+        iptables -I INPUT -p tcp --dport ${serverport} -j ACCEPT
+        iptables -I INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
         if [ "${OS}" == 'CentOS' ]; then
             service iptables save
         else
