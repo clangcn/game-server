@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="4.2"
+version="4.3"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
 game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
@@ -294,7 +294,7 @@ EOF
             chmod +x /etc/network/if-pre-up.d/iptables
         fi
     fi
-    ln -s ${str_game_dir}/game-server /usr/bin/
+    [ -s /etc/init.d/game-server ] && ln -s /etc/init.d/game-server /usr/bin/game-server
     /etc/init.d/game-server start
     ${str_game_dir}/game-server -version
     echo ""
@@ -423,7 +423,7 @@ function update_game_server_clang(){
             chmod +x /etc/init.d/game-server
             update-rc.d -f game-server defaults
         fi
-        ln -s ${str_game_dir}/game-server /usr/bin/
+        [ -s /etc/init.d/game-server ] && ln -s /etc/init.d/game-server /usr/bin/game-server
         if [ -s /root/config.json ] && [ ! -a ${str_game_dir}/config.json ]; then
             mv /root/config.json ${str_game_dir}/config.json
         fi
