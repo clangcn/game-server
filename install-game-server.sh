@@ -7,8 +7,12 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="4.0"
+version="4.1"
 str_game_dir="/usr/local/game-server"
+game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
+game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
+game_init_centos_download_url=https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init
+game_init_debian_download_url=https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init
 
 function fun_clang.cn(){
     echo ""
@@ -237,14 +241,14 @@ EOF
     rm -f ${str_game_dir}/game-server
     if [ "${Is_64bit}" == 'y' ] ; then
         if [ ! -s ${str_game_dir}/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O ${str_game_dir}/game-server; then
+            if ! wget ${game_x64_download_url} -O ${str_game_dir}/game-server; then
                 echo "Failed to download game-server file!"
                 exit 1
             fi
         fi
     else
          if [ ! -s ${str_game_dir}/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O ${str_game_dir}/game-server; then
+            if ! wget ${game_x86_download_url} -O ${str_game_dir}/game-server; then
                 echo "Failed to download game-server file!"
                 exit 1
             fi
@@ -253,7 +257,7 @@ EOF
     [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
     if [ "${OS}" == 'CentOS' ]; then
         if [ ! -s /etc/init.d/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init -O /etc/init.d/game-server; then
+            if ! wget --no-check-certificate ${game_init_centos_download_url} -O /etc/init.d/game-server; then
                 echo "Failed to download game-server.init file!"
                 exit 1
             fi
@@ -262,7 +266,7 @@ EOF
         chkconfig --add game-server
     else
         if [ ! -s /etc/init.d/game-server ]; then
-            if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init -O /etc/init.d/game-server; then
+            if ! wget --no-check-certificate ${game_init_debian_download_url} -O /etc/init.d/game-server; then
                 echo "Failed to download game-server.init file!"
                 exit 1
             fi
@@ -385,14 +389,14 @@ function update_game_server_clang(){
         rm -f /usr/bin/game-server ${str_game_dir}/game-server /root/game-server /root/game-server.log /etc/init.d/game-server
         if [ "${Is_64bit}" == 'y' ] ; then
             if [ ! -s /root/game-server ]; then
-                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server -O ${str_game_dir}/game-server; then
+                if ! wget ${game_x64_download_url} -O ${str_game_dir}/game-server; then
                     echo "Failed to download game-server file!"
                     exit 1
                 fi
             fi
         else
              if [ ! -s /root/game-server ]; then
-                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/game-server-x86 -O ${str_game_dir}/game-server; then
+                if ! wget ${game_x86_download_url} -O ${str_game_dir}/game-server; then
                     echo "Failed to download game-server file!"
                     exit 1
                 fi
@@ -401,7 +405,7 @@ function update_game_server_clang(){
         [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
         if [ "${OS}" == 'CentOS' ]; then
             if [ ! -s /etc/init.d/game-server ]; then
-                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init -O /etc/init.d/game-server; then
+                if ! wget --no-check-certificate ${game_init_centos_download_url} -O /etc/init.d/game-server; then
                     echo "Failed to download game-server.init file!"
                     exit 1
                 fi
@@ -410,7 +414,7 @@ function update_game_server_clang(){
             chkconfig --add game-server
         else
             if [ ! -s /etc/init.d/game-server ]; then
-                if ! wget --no-check-certificate https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init -O /etc/init.d/game-server; then
+                if ! wget --no-check-certificate ${game_init_debian_download_url} -O /etc/init.d/game-server; then
                     echo "Failed to download game-server.init file!"
                     exit 1
                 fi
