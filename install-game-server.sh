@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="4.1"
+version="4.2"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
 game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
@@ -296,6 +296,7 @@ EOF
     fi
     ln -s ${str_game_dir}/game-server /usr/bin/
     /etc/init.d/game-server start
+    ${str_game_dir}/game-server -version
     echo ""
     fun_clang.cn
     #install successfully
@@ -427,8 +428,8 @@ function update_game_server_clang(){
             mv /root/config.json ${str_game_dir}/config.json
         fi
         /etc/init.d/game-server start
-        echo "Game-Server(XiaoBao) update success!"
         ${str_game_dir}/game-server -version
+        echo "Game-Server(XiaoBao) update success!"
     else
         echo "Game-Server(XiaoBao) Not install!"
     fi
