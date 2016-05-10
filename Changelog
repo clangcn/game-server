@@ -1,5 +1,8 @@
 Gmae-Server(XiaoBao)一键安装脚本 Changelog
 ===========================================
+5.0 [2016-05-10 23:09]
+   + Add       新增安装脚本自更新功能
+   / update    更新依赖包安装方式
 4.1 [2016-05-08 14:31]
    / update    更新Game-Server下载源为官方源(http://koolshare.io/koolgame/)
 4.0
