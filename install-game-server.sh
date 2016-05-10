@@ -7,12 +7,14 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="4.3"
+version="5.0"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
 game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
 game_init_centos_download_url=https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init
 game_init_debian_download_url=https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init
+str_remote_install_ver=https://raw.githubusercontent.com/clangcn/game-server/master/version
+str_install_shell=https://github.com/clangcn/game-server/raw/master/install-game-server.sh
 
 function fun_clang.cn(){
     echo ""
@@ -143,7 +145,60 @@ function fun_randstr(){
   for i in {1..16}; do strRandomPass="$strRandomPass${arr[$RANDOM%$index]}"; done
   echo $strRandomPass
 }
+# ====== check packs ======
+function check_nano(){
+    nano -V
+    if [[ $? -le 1 ]] ;then
+        echo " Run nano success"
+    else
+        echo " Run nano failed"
+        if [ "${OS}" == 'CentOS' ]; then
+            echo " Install  centos nano ..."
+            yum -y install nano
+        else
+            echo " Install  debian/ubuntu nano ..."
+            apt-get update -y
+            apt-get install -y nano
+        fi
+    fi
+    echo $result
+}
+function check_iptables(){
+    iptables -V
+    if [[ $? -le 1 ]] ;then
+        echo " Run iptables success"
+    else
+        echo " Run iptables failed"
+        if [ "${OS}" == 'CentOS' ]; then
+            echo " Install  centos iptables ..."
+            yum -y install iptables policycoreutils 
+        else
+            echo " Install  debian/ubuntu iptables ..."
+            apt-get update -y
+            apt-get install -y iptables 
+        fi
+    fi
+    echo $result
+}
+function check_curl(){
+    curl -V
+    if [[ $? -le 1 ]] ;then
+        echo " Run curl success"
+    else
+        echo " Run curl failed"
+        if [ "${OS}" == 'CentOS' ]; then
+            echo " Install  centos curl ..."
+            yum -y install curl curl-devel
+        else
+            echo " Install  debian/ubuntu curl ..."
+            apt-get update -y
+            apt-get install -y curl
+        fi
+    fi
+    echo $result
+}
 
+# ====== pre_install ======
 function pre_install_clang(){
     #config setting
     echo " Please input your Game-Server(XiaoBao) server_port and password"
@@ -151,7 +206,8 @@ function pre_install_clang(){
     sshport=`netstat -anp |grep ssh | grep '0.0.0.0:'|cut -d: -f2| awk 'NR==1 { print $1}'`
     defIP=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.' | cut -d: -f2 | awk 'NR==1 { print $1}'`
     if [ "${defIP}" = "" ]; then
-        defIP=$(curl -s -4 icanhazip.com)
+        check_curl
+        defIP=$(curl -s -4 ip.clang.cn)
     fi
     IP="0.0.0.0"
     echo "Please input VPS IP"
@@ -209,10 +265,10 @@ function pre_install_clang(){
     echo "============== Install packs =============="
     if [ "${OS}" == 'CentOS' ]; then
         #yum -y update
-        yum -y install nano net-tools openssl-devel wget iptables policycoreutils curl curl-devel psmisc
+        yum -y install net-tools wget psmisc
     else
         apt-get update -y
-        apt-get install -y wget nano screen openssl libcurl4-openssl-dev iptables curl psmisc
+        apt-get install -y wget psmisc
     fi
 
     [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
@@ -276,6 +332,7 @@ EOF
     fi
 
     if [ "$set_iptables" == 'y' ]; then
+        check_iptables
         # iptables config
         iptables -I INPUT -p udp --dport ${serverport} -j ACCEPT
         iptables -I INPUT -p tcp --dport ${serverport} -j ACCEPT
@@ -327,6 +384,7 @@ function install_game_server_clang(){
 }
 ############################### configure function ##################################
 function configure_game_server_clang(){
+    check_nano
     if [ -s ${str_game_dir}/config.json ]; then
         nano ${str_game_dir}/config.json
     else
@@ -380,6 +438,13 @@ function uninstall_game_server_clang(){
 ############################### update function ##################################
 function update_game_server_clang(){
     fun_clang.cn
+    check_curl
+    remote_version=`curl -s ${str_remote_install_ver} | sed -n 1p`
+    install_shell=$(cd "$(dirname '$0')"; pwd)
+    if [ "${version}" != "${remote_version}" ];then
+        echo "============== Update Game-Server(XiaoBao) install shell =============="
+        wget -q --no-check-certificate ${str_install_shell} -O ${install_shell}/install-game-server.sh
+    fi
     if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
         echo "============== Update Game-Server(XiaoBao) =============="
         checkos
