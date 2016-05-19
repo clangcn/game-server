@@ -7,14 +7,12 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="5.0"
+version="6.0"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
 game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
-game_init_centos_download_url=https://github.com/clangcn/game-server/raw/master/init/centos-game-server.init
-game_init_debian_download_url=https://github.com/clangcn/game-server/raw/master/init/debian-game-server.init
-str_remote_install_ver=https://raw.githubusercontent.com/clangcn/game-server/master/version
-str_install_shell=https://github.com/clangcn/game-server/raw/master/install-game-server.sh
+game_init_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/init/game-server.init
+str_install_shell=https://raw.githubusercontent.com/clangcn/game-server/master/install-game-server.sh
 
 function fun_clang.cn(){
     echo ""
@@ -44,6 +42,17 @@ function get_char(){
     stty -raw
     stty echo
     stty $SAVEDSTTY
+}
+
+function fun_set_text_color(){
+    COLOR_RED='\E[1;31m'
+    COLOR_GREEN='\E[1;32m'
+    COLOR_YELOW='\E[1;33m'
+    COLOR_BLUE='\E[1;34m'
+    COLOR_PINK='\E[1;35m'
+    COLOR_CYAN_BLUE='\033[40;36m'
+    COLOR_PINKBACK_WHITEFONT='\033[45;37m'
+    COLOR_END='\E[0m'
 }
 
 # Check OS
@@ -112,7 +121,7 @@ function fun_check_port(){
         checkServerPort=`netstat -ntul | grep "\b:${strServerPort}\b"`
         if [ -n "${checkServerPort}" ]; then
             echo ""
-            echo -e "\033[31m\033[01mError:\033[0m Port \033[32m${strServerPort}\033[0m is \033[35m\033[01mused\033[0m,view relevant port:"
+            echo -e "${COLOR_RED}Error:${COLOR_END} Port ${COLOR_GREEN}${strServerPort}${COLOR_END} is ${COLOR_PINK}mused${COLOR_END},view relevant port:"
             #netstat -apn | grep "\b:${strServerPort}\b"
             netstat -ntulp | grep "\b:${strServerPort}\b"
             fun_input_port
@@ -129,7 +138,7 @@ function fun_check_port(){
 function fun_input_port(){
     server_port="8838"
     echo ""
-    echo -e "Please input Server Port [1-65535](Don't the same SSH Port \033[31m\033[01m${sshport}\033[0m)"
+    echo -e "Please input Server Port [1-65535](Don't the same SSH Port ${COLOR_RED}${sshport}${COLOR_END})"
     read -p "(Default Server Port: ${server_port}):" serverport
     [ -z "${serverport}" ] && serverport="${server_port}"
     fun_check_port "${serverport}"
@@ -153,10 +162,10 @@ function check_nano(){
     else
         echo " Run nano failed"
         if [ "${OS}" == 'CentOS' ]; then
-            echo " Install  centos nano ..."
+            echo " Install centos nano ..."
             yum -y install nano
         else
-            echo " Install  debian/ubuntu nano ..."
+            echo " Install debian/ubuntu nano ..."
             apt-get update -y
             apt-get install -y nano
         fi
@@ -170,12 +179,12 @@ function check_iptables(){
     else
         echo " Run iptables failed"
         if [ "${OS}" == 'CentOS' ]; then
-            echo " Install  centos iptables ..."
-            yum -y install iptables policycoreutils 
+            echo " Install centos iptables ..."
+            yum -y install iptables policycoreutils libpcap libpcap-devel
         else
-            echo " Install  debian/ubuntu iptables ..."
+            echo " Install debian/ubuntu iptables ..."
             apt-get update -y
-            apt-get install -y iptables 
+            apt-get install -y iptables libpcap-dev
         fi
     fi
     echo $result
@@ -187,10 +196,10 @@ function check_curl(){
     else
         echo " Run curl failed"
         if [ "${OS}" == 'CentOS' ]; then
-            echo " Install  centos curl ..."
+            echo " Install centos curl ..."
             yum -y install curl curl-devel
         else
-            echo " Install  debian/ubuntu curl ..."
+            echo " Install debian/ubuntu curl ..."
             apt-get update -y
             apt-get install -y curl
         fi
@@ -204,11 +213,11 @@ function pre_install_clang(){
     echo " Please input your Game-Server(XiaoBao) server_port and password"
     echo ""
     sshport=`netstat -anp |grep ssh | grep '0.0.0.0:'|cut -d: -f2| awk 'NR==1 { print $1}'`
-    defIP=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.' | cut -d: -f2 | awk 'NR==1 { print $1}'`
-    if [ "${defIP}" = "" ]; then
+    #defIP=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.' | cut -d: -f2 | awk 'NR==1 { print $1}'`
+    #if [ "${defIP}" = "" ]; then
         check_curl
         defIP=$(curl -s -4 ip.clang.cn)
-    fi
+    #fi
     IP="0.0.0.0"
     echo "Please input VPS IP"
     read -p "(You VPS IP:$defIP, Default IP: $IP):" IP
@@ -224,14 +233,14 @@ function pre_install_clang(){
     fi
     echo ""
     ssmethod="chacha20"
-    echo "Please input Encryption method(chacha20, aes-256-cfb, bf-cfb, des-cfb, rc4)"
+    echo "Please input Encryption method(chacha20-ierf, chacha20, aes-256-cfb, bf-cfb, des-cfb, rc4)"
     read -p "(Default method: ${ssmethod}):" ssmethod
     if [ "${ssmethod}" = "" ]; then
         ssmethod="chacha20"
     fi
     echo ""
     set_iptables="n"
-        echo  -e "\033[33mDo you want to set iptables?\033[0m"
+        echo  -e "${COLOR_YELOW}Do you want to set iptables?${COLOR_END}"
         read -p "(if you want please input: y,Default [no]):" set_iptables
 
         case "${set_iptables}" in
@@ -250,12 +259,12 @@ function pre_install_clang(){
 
     echo ""
     echo "============== Check your input =============="
-    echo -e "Your Server IP:\033[32m\033[01m${defIP}\033[0m"
-    echo -e "Your Set IP:\033[32m\033[01m${IP}\033[0m"
-    echo -e "Your Server Port:\033[32m\033[01m${serverport}\033[0m"
-    echo -e "Your Password:\033[32m\033[01m${shadowsockspwd}\033[0m"
-    echo -e "Your Encryption Method:\033[32m\033[01m${ssmethod}\033[0m"
-    echo -e "Your SSH Port:\033[32m \033[01m${sshport}\033[0m"
+    echo -e "Your Server IP:${COLOR_GREEN}${defIP}${COLOR_END}"
+    echo -e "Your Set IP:${COLOR_GREEN}${IP}${COLOR_END}"
+    echo -e "Your Server Port:${COLOR_GREEN}${serverport}${COLOR_END}"
+    echo -e "Your Password:${COLOR_GREEN}${shadowsockspwd}${COLOR_END}"
+    echo -e "Your Encryption Method:${COLOR_GREEN}${ssmethod}${COLOR_END}"
+    echo -e "Your SSH Port:${COLOR_GREEN}${sshport}${COLOR_END}"
     echo "=============================================="
     echo ""
     echo "Press any key to start...or Press Ctrl+c to cancel"
@@ -311,22 +320,17 @@ EOF
         fi
     fi
     [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
-    if [ "${OS}" == 'CentOS' ]; then
-        if [ ! -s /etc/init.d/game-server ]; then
-            if ! wget --no-check-certificate ${game_init_centos_download_url} -O /etc/init.d/game-server; then
-                echo "Failed to download game-server.init file!"
-                exit 1
-            fi
+    if [ ! -s /etc/init.d/game-server ]; then
+        if ! wget --no-check-certificate ${program_init_download_url} -O /etc/init.d/game-server; then
+            echo "Failed to download game-server.init file!"
+            exit 1
         fi
+    fi
+    [ ! -x /etc/init.d/game-server ] && chmod +x /etc/init.d/game-server
+    if [ "${OS}" == 'CentOS' ]; then
         chmod +x /etc/init.d/game-server
         chkconfig --add game-server
     else
-        if [ ! -s /etc/init.d/game-server ]; then
-            if ! wget --no-check-certificate ${game_init_debian_download_url} -O /etc/init.d/game-server; then
-                echo "Failed to download game-server.init file!"
-                exit 1
-            fi
-        fi
         chmod +x /etc/init.d/game-server
         update-rc.d -f game-server defaults
     fi
@@ -359,14 +363,14 @@ EOF
     #install successfully
     echo ""
     echo "Congratulations, Game-Server(XiaoBao) install completed!"
-    echo -e "Your Server IP:\033[32m\033[01m${defIP}\033[0m"
-    echo -e "Your Set IP:\033[32m\033[01m${IP}\033[0m"
-    echo -e "Your Server Port:\033[32m\033[01m${serverport}\033[0m"
-    echo -e "Your Password:\033[32m\033[01m${shadowsockspwd}\033[0m"
-    echo -e "Your Local Port:\033[32m\033[01m1080\033[0m"
-    echo -e "Your Encryption Method:\033[32m\033[01m${ssmethod}\033[0m"
+    echo -e "Your Server IP:${COLOR_GREEN}${defIP}${COLOR_END}"
+    echo -e "Your Set IP:${COLOR_GREEN}${IP}${COLOR_END}"
+    echo -e "Your Server Port:${COLOR_GREEN}${serverport}${COLOR_END}"
+    echo -e "Your Password:${COLOR_GREEN}${shadowsockspwd}${COLOR_END}"
+    echo -e "Your Local Port:${COLOR_GREEN}1080${COLOR_END}"
+    echo -e "Your Encryption Method:${COLOR_GREEN}${ssmethod}${COLOR_END}"
     echo ""
-    echo -e "Game-Server(XiaoBao) status manage: \033[45;37m/etc/init.d/game-server\033[0m {\033[40;35mstart\033[0m|\033[40;32mstop\033[0m|\033[40;33mrestart\033[0m|\033[40;36mstatus\033[0m}"
+    echo -e "Game-Server(XiaoBao) status manage: ${COLOR_PINKBACK_WHITEFONT}/etc/init.d/game-server${COLOR_END} {${COLOR_PINK}start${COLOR_END}|${COLOR_GREEN}stop${COLOR_END}|${COLOR_YELOW}restart${COLOR_END}|${COLOR_CYAN_BLUE}status${COLOR_END}}"
     #iptables -L -n
 }
 ############################### install function ##################################
@@ -397,7 +401,7 @@ function uninstall_game_server_clang(){
     if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
         echo "============== Uninstall Game-Server(XiaoBao) =============="
         save_config="n"
-        echo  -e "\033[33mDo you want to keep the configuration file?\033[0m"
+        echo  -e "${COLOR_YELOW}Do you want to keep the configuration file?${COLOR_END}"
         read -p "(if you want please input: y,Default [no]):" save_config
 
         case "${save_config}" in
@@ -451,6 +455,40 @@ function update_game_server_clang(){
         check_centosversion
         check_os_bit
         killall game-server
+        remote_shell_version=`curl -s ${str_install_shell} | sed -n '/'^version'/p' | cut -d\" -f2`
+        remote_init_version=`curl -s ${program_init_download_url} | sed -n '/'^version'/p' | cut -d\" -f2`
+        local_init_version=`sed -n '/'^version'/p' /etc/init.d/kcp-server | cut -d\" -f2`
+        install_shell=${strPath}
+        if [ ! -z ${remote_shell_version} ] || [ ! -z ${remote_init_version} ];then
+            update_flag="false"
+            if [[ "${version}" < "${remote_shell_version}" ]];then
+                echo "========== Update Game-Server(XiaoBao) install-game-server.sh =========="
+                if ! wget --no-check-certificate ${str_install_shell} -O ${install_shell}/install-game-server.sh; then
+                    echo "Failed to download install-game-server.sh file!"
+                    exit 1
+                else
+                    echo -e "${COLOR_GREEN}install-game-server.sh Update successfully !!!${COLOR_END}"
+                    update_flag="true"
+                fi
+            fi
+            if [[ "${local_init_version}" < "${remote_init_version}" ]];then
+                echo "========== Update Game-Server(XiaoBao) /etc/init.d/game-server =========="
+                if ! wget --no-check-certificate ${program_init_download_url} -O /etc/init.d/game-server; then
+                    echo "Failed to download game-server.init file!"
+                    exit 1
+                else
+                    echo -e "${COLOR_GREEN}/etc/init.d/game-server Update successfully !!!${COLOR_END}"
+                    update_flag="true"
+                fi
+            fi
+            if [ "${update_flag}" == 'true' ]; then
+                echo -e "${COLOR_GREEN}Update shell successfully !!!${COLOR_END}"
+                echo ""
+                echo -e "${COLOR_GREEN}Please Re-run${COLOR_END} ${COLOR_PINKBACK_WHITEFONT}$0 update${COLOR_END}"
+                echo ""
+                exit 1
+            fi
+        fi
         [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
         rm -f /usr/bin/game-server ${str_game_dir}/game-server /root/game-server /root/game-server.log /etc/init.d/game-server
         if [ "${Is_64bit}" == 'y' ] ; then
@@ -470,21 +508,9 @@ function update_game_server_clang(){
         fi
         [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
         if [ "${OS}" == 'CentOS' ]; then
-            if [ ! -s /etc/init.d/game-server ]; then
-                if ! wget --no-check-certificate ${game_init_centos_download_url} -O /etc/init.d/game-server; then
-                    echo "Failed to download game-server.init file!"
-                    exit 1
-                fi
-            fi
             chmod +x /etc/init.d/game-server
             chkconfig --add game-server
         else
-            if [ ! -s /etc/init.d/game-server ]; then
-                if ! wget --no-check-certificate ${game_init_debian_download_url} -O /etc/init.d/game-server; then
-                    echo "Failed to download game-server.init file!"
-                    exit 1
-                fi
-            fi
             chmod +x /etc/init.d/game-server
             update-rc.d -f game-server defaults
         fi
@@ -502,6 +528,7 @@ function update_game_server_clang(){
 }
 clear
 rootness
+strPath=`pwd`
 # Initialization
 action=$1
 [  -z $1 ]
