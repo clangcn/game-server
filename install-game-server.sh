@@ -11,7 +11,7 @@ version="6.0"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
 game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
-game_init_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/init/game-server.init
+program_init_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/init/game-server.init
 str_install_shell=https://raw.githubusercontent.com/clangcn/game-server/master/install-game-server.sh
 
 function fun_clang.cn(){
@@ -467,17 +467,17 @@ function update_game_server_clang(){
                     echo "Failed to download install-game-server.sh file!"
                     exit 1
                 else
-                    echo -e "${COLOR_GREEN}install-game-server.sh Update successfully !!!${COLOR_END}"
+                    echo -e "${COLOR_GREEN}install-kcp-server.sh Update successfully !!!${COLOR_END}"
                     update_flag="true"
                 fi
             fi
             if [[ "${local_init_version}" < "${remote_init_version}" ]];then
-                echo "========== Update Game-Server(XiaoBao) /etc/init.d/game-server =========="
+                echo "========== Update kcp-Server(XiaoBao) /etc/init.d/game-server =========="
                 if ! wget --no-check-certificate ${program_init_download_url} -O /etc/init.d/game-server; then
                     echo "Failed to download game-server.init file!"
                     exit 1
                 else
-                    echo -e "${COLOR_GREEN}/etc/init.d/game-server Update successfully !!!${COLOR_END}"
+                    echo -e "${COLOR_GREEN}/etc/init.d/kcp-server Update successfully !!!${COLOR_END}"
                     update_flag="true"
                 fi
             fi
