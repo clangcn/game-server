@@ -9,8 +9,8 @@ export PATH
 #===============================================================================================
 version="6.0"
 str_game_dir="/usr/local/game-server"
-game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
-game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
+game_x64_download_url=http://firmware.koolshare.cn/koolgame/latest/game-server
+game_x86_download_url=http://firmware.koolshare.cn/koolgame/latest/game-server-386
 program_init_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/init/game-server.init
 str_install_shell=https://raw.githubusercontent.com/clangcn/game-server/master/install-game-server.sh
 
