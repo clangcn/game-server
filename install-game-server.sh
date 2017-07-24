@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="7.1"
+version="7.2"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server
 game_x86_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server-386
@@ -444,7 +444,7 @@ update_game_server_clang(){
             fi
         fi
         [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
-        rm -f /usr/bin/game-server ${str_game_dir}/game-server /root/game-server /root/game-server.log /etc/init.d/game-server
+        rm -f /usr/bin/game-server ${str_game_dir}/game-server /root/game-server /root/game-server.log
         if [ "${Is_64bit}" == 'y' ] ; then
             if ! wget --no-check-certificate ${game_x64_download_url} -O ${str_game_dir}/game-server; then
                 echo "Failed to download game-server file!"
