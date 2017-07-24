@@ -22,78 +22,70 @@ BIN=${ProgramPath}/$NAME
 CONFIGFILE=${ProgramPath}/config.json
 LOGFILE=${ProgramPath}/game-server.log
 SCRIPTNAME=/etc/init.d/$NAME
-PID_DIR=/var/run
-PID_FILE=$PID_DIR/game-server.pid
-version="1.0"
+program_version=`${BIN} -version`
+version="1.1"
 RET_VAL=0
 
 [ -x $BIN ] || exit 0
 
 fun_check_run()
 {
-    if [ -r $PID_FILE ]; then
-        read PID <$PID_FILE
-        if [ -d "/proc/$PID" ]; then
-          return 0
-        else
-          rm -f $PID_FILE
-          return 1
-        fi
-      else
-        return 2
-  fi
-}
-fun_status()
-{
-    fun_check_run
-    case $? in
-    0)
-      echo "${ProgramName} running with PID ${PID}"
-      ;;
-    1)
-      echo "${ProgramName} not running, remove PID file ${PID_FILE}"
-      ;;
-    2)
-      echo "Could not find PID file ${PID_FILE}, ${ProgramName} does not appear to be running"
-      ;;
-  esac
-  return 0
-}
-fun_start()
-{
-    if [ ! -d $PID_DIR ]; then
-        mkdir -p $PID_DIR || echo "failed creating PID directory ${PID_DIR}"; exit 1
-    fi
-    if fun_check_run; then
-        echo "${ProgramName} already running with PID ${PID}"
+    PID=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
+    if [ ! -z $PID ]; then
         return 0
+    else
+        return 1
     fi
+}
+fun_load_config(){
     if [ ! -r ${CONFIGFILE} ]; then
         echo "config file ${CONFIGFILE} not found"
         return 1
     fi
-    echo "Starting ${ProgramName}..."
+}
+fun_status()
+{
+    PID=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
+    if [ ! -z $PID ]; then
+        echo "${ProgramName} (pid $PID) is running..."
+    else
+        echo "${ProgramName} is stopped"
+        exit 0
+    fi
+}
+fun_start(){
+    if fun_check_run; then
+        echo "${ProgramName} (pid $PID) already running."
+        return 0
+    fi
+    fun_load_config
+    echo -n "Starting ${ProgramName}(${program_version})..."
     ${BIN} -c ${CONFIGFILE} > ${LOGFILE} 2>&1 &
-    PID=$!
-    echo $PID > $PID_FILE
-    sleep 0.3
+    sleep 1
     if ! fun_check_run; then
         echo "start failed"
         return 1
     fi
-    echo "${ProgramName} is running, ProcessID is ${PID}."
+    echo " done"
+    echo "${ProgramName} (pid $PID)is running."
     echo "read ${LOGFILE} for log"
     return 0
 }
 
 fun_stop(){
     if fun_check_run; then
-        echo "Stopping ${ProgramName} with PID ${PID}."
+        echo -n "Stoping ${ProgramName} (pid $PID)... "
         kill $PID
-        rm -f $PID_FILE
+        if [ "$?" != 0 ] ; then
+            echo " failed"
+            return 1
+        else
+            echo " done"
+        fi
     else
-        echo "not find PID file $PID_FILE"
+        echo "${ProgramName} is not running."
     fi
+    return 0
 }
 
 fun_restart(){
@@ -101,12 +93,26 @@ fun_restart(){
     fun_start
 }
 
+fun_config(){
+    if [ -s ${CONFIGFILE} ]; then
+        vi ${CONFIGFILE}
+    else
+        echo "${ProgramName} configuration file not found!"
+        return 1
+    fi
+}
+
+fun_version(){
+    echo "${ProgramName} version ${program_version}"
+    return 0
+}
+
 case "$1" in
-    start|stop|restart|status)
+    start|stop|restart|status|version)
         fun_$1
     ;;
     *)
-        echo "Usage: $SCRIPTNAME {start|stop|restart|status}"
+        echo "Usage: $SCRIPTNAME {start|stop|restart|status|version}"
         RET_VAL=1
     ;;
 esac

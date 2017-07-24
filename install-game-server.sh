@@ -7,26 +7,47 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="6.0"
+version="7.0"
 str_game_dir="/usr/local/game-server"
-game_x64_download_url=http://koolshare.io/koolgame/latest/game-server
-game_x86_download_url=http://koolshare.io/koolgame/latest/game-server-386
+game_x64_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server
+game_x86_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server-386
 program_init_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/init/game-server.init
 str_install_shell=https://raw.githubusercontent.com/clangcn/game-server/master/install-game-server.sh
-
-function fun_clang.cn(){
+shell_update(){
+    fun_clangcn "clear"
+    echo "Check updates for shell..."
+    remote_shell_version=`wget --no-check-certificate -qO- ${str_install_shell} | sed -n '/'^version'/p' | cut -d\" -f2`
+    if [ ! -z ${remote_shell_version} ]; then
+        if [[ "${version}" != "${remote_shell_version}" ]];then
+            echo -e "${COLOR_GREEN}Found a new version,update now!!!${COLOR_END}"
+            echo
+            echo -n "Update shell ..."
+            if ! wget --no-check-certificate -qO $0 ${str_install_shell}; then
+                echo -e " [${COLOR_RED}failed${COLOR_END}]"
+                echo
+                exit 1
+            else
+                echo -e " [${COLOR_GREEN}OK${COLOR_END}]"
+                echo
+                echo -e "${COLOR_GREEN}Please Re-run${COLOR_END} ${COLOR_PINK}$0 ${clang_action}${COLOR_END}"
+                echo
+                exit 1
+            fi
+            exit 1
+        fi
+    fi
+}
+fun_clang.cn(){
     echo ""
     echo "#####################################################################"
     echo "# Install Game-Server(XiaoBao) for CentOS Debian or Ubuntu(32/64bit)"
-    echo "# Intro: http://clang.cn"
-    echo "# Author: Clang <admin@clangcn.com>"
     echo "# Version ${version}"
     echo "#####################################################################"
     echo ""
 }
 
 # Check if user is root
-function rootness(){
+rootness(){
     if [[ $EUID -ne 0 ]]; then
         fun_clang.cn
         echo "Error:This script must be run as root!" 1>&2
@@ -34,7 +55,7 @@ function rootness(){
     fi
 }
 
-function get_char(){
+get_char(){
     SAVEDSTTY=`stty -g`
     stty -echo
     stty cbreak
@@ -44,7 +65,7 @@ function get_char(){
     stty $SAVEDSTTY
 }
 
-function fun_set_text_color(){
+fun_set_text_color(){
     COLOR_RED='\E[1;31m'
     COLOR_GREEN='\E[1;32m'
     COLOR_YELOW='\E[1;33m'
@@ -56,7 +77,7 @@ function fun_set_text_color(){
 }
 
 # Check OS
-function checkos(){
+checkos(){
     if grep -Eqi "CentOS" /etc/issue || grep -Eq "CentOS" /etc/*-release; then
         OS=CentOS
     elif grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/*-release; then
@@ -70,7 +91,7 @@ function checkos(){
 }
 
 # Get version
-function getversion(){
+getversion(){
     if [[ -s /etc/redhat-release ]];then
         grep -oE  "[0-9.]+" /etc/redhat-release
     else    
@@ -79,7 +100,7 @@ function getversion(){
 }
 
 # CentOS version
-function centosversion(){
+centosversion(){
     local code=$1
     local version="`getversion`"
     local main_ver=${version%%.*}
@@ -91,7 +112,7 @@ function centosversion(){
 }
 
 # Check OS bit
-function check_os_bit(){
+check_os_bit(){
     if [[ `getconf WORD_BIT` = '32' && `getconf LONG_BIT` = '64' ]] ; then
         Is_64bit='y'
     else
@@ -99,7 +120,7 @@ function check_os_bit(){
     fi
 }
 
-function check_centosversion(){
+check_centosversion(){
 if centosversion 5; then
     echo "Not support CentOS 5.x, please change to CentOS 6,7 or Debian or Ubuntu and try again."
     exit 1
@@ -107,7 +128,7 @@ fi
 }
 
 # Disable selinux
-function disable_selinux(){
+disable_selinux(){
     if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
         setenforce 0
@@ -115,7 +136,7 @@ function disable_selinux(){
 }
 
 # Check port
-function fun_check_port(){
+fun_check_port(){
     strServerPort="$1"
     if [ ${strServerPort} -ge 1 ] && [ ${strServerPort} -le 65535 ]; then
         checkServerPort=`netstat -ntul | grep "\b:${strServerPort}\b"`
@@ -135,7 +156,7 @@ function fun_check_port(){
 }
 
 # input port
-function fun_input_port(){
+fun_input_port(){
     server_port="8838"
     echo ""
     echo -e "Please input Server Port [1-65535](Don't the same SSH Port ${COLOR_RED}${sshport}${COLOR_END})"
@@ -145,7 +166,7 @@ function fun_input_port(){
 }
 
 # Random password
-function fun_randstr(){
+fun_randstr(){
   index=0
   strRandomPass=""
   for i in {a..z}; do arr[index]=$i; index=`expr ${index} + 1`; done
@@ -155,7 +176,7 @@ function fun_randstr(){
   echo $strRandomPass
 }
 # ====== check packs ======
-function check_nano(){
+check_nano(){
     nano -V
     if [[ $? -le 1 ]] ;then
         echo " Run nano success"
@@ -172,7 +193,7 @@ function check_nano(){
     fi
     echo $result
 }
-function check_iptables(){
+check_iptables(){
     iptables -V
     if [[ $? -le 1 ]] ;then
         echo " Run iptables success"
@@ -189,7 +210,7 @@ function check_iptables(){
     fi
     echo $result
 }
-function check_curl(){
+check_curl(){
     curl -V
     if [[ $? -le 1 ]] ;then
         echo " Run curl success"
@@ -208,7 +229,29 @@ function check_curl(){
 }
 
 # ====== pre_install ======
-function pre_install_clang(){
+pre_install_packs(){
+    local wget_flag=''
+    local killall_flag=''
+    local netstat_flag=''
+    local curl_flag=''
+    wget --version > /dev/null 2>&1
+    wget_flag=$?
+    killall -V >/dev/null 2>&1
+    killall_flag=$?
+    netstat --version >/dev/null 2>&1
+    netstat_flag=$?
+    curl -V > /dev/null 2>&1
+    curl_flag=$?
+    if [[ ${wget_flag} -gt 1 ]] || [[ ${killall_flag} -gt 1 ]] || [[ ${netstat_flag} -gt 6 ]] || [[ ${curl_flag} -gt 1 ]];then
+        echo -e "${COLOR_GREEN} Install support packs...${COLOR_END}"
+        if [ "${OS}" == 'CentOS' ]; then
+            yum install -y wget psmisc net-tools curl-devel
+        else
+            apt-get -y update && apt-get -y install wget psmisc net-tools curl
+        fi
+    fi
+}
+pre_install_clang(){
     #config setting
     echo " Please input your Game-Server(XiaoBao) server_port and password"
     echo ""
@@ -219,11 +262,7 @@ function pre_install_clang(){
         defIP=$(curl -s -4 ip.clang.cn)
     #fi
     IP="0.0.0.0"
-    echo "Please input VPS IP"
-    read -p "(You VPS IP:$defIP, Default IP: $IP):" IP
-    if [ "$IP" = "" ]; then
-        IP="0.0.0.0"
-    fi
+    echo "You VPS IP:$defIP"
     fun_input_port
     echo ""
     shadowsocks_pwd=`fun_randstr`
@@ -260,7 +299,6 @@ function pre_install_clang(){
     echo ""
     echo "============== Check your input =============="
     echo -e "Your Server IP:${COLOR_GREEN}${defIP}${COLOR_END}"
-    echo -e "Your Set IP:${COLOR_GREEN}${IP}${COLOR_END}"
     echo -e "Your Server Port:${COLOR_GREEN}${serverport}${COLOR_END}"
     echo -e "Your Password:${COLOR_GREEN}${shadowsockspwd}${COLOR_END}"
     echo -e "Your Encryption Method:${COLOR_GREEN}${ssmethod}${COLOR_END}"
@@ -270,15 +308,6 @@ function pre_install_clang(){
     echo "Press any key to start...or Press Ctrl+c to cancel"
 
     char=`get_char`
-
-    echo "============== Install packs =============="
-    if [ "${OS}" == 'CentOS' ]; then
-        #yum -y update
-        yum -y install net-tools wget psmisc
-    else
-        apt-get update -y
-        apt-get install -y wget psmisc
-    fi
 
     [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
     cd ${str_game_dir}
@@ -302,7 +331,7 @@ cat > ${str_game_dir}/config.json<<-EOF
     }
 }
 EOF
-    chmod 400 ${str_game_dir}/config.json
+    chmod 600 ${str_game_dir}/config.json
     rm -f ${str_game_dir}/game-server
     if [ "${Is_64bit}" == 'y' ] ; then
         if [ ! -s ${str_game_dir}/game-server ]; then
@@ -374,7 +403,7 @@ EOF
     #iptables -L -n
 }
 ############################### install function ##################################
-function install_game_server_clang(){
+install_game_server_clang(){
     fun_clang.cn
     checkos
     check_centosversion
@@ -387,7 +416,7 @@ function install_game_server_clang(){
     fi
 }
 ############################### configure function ##################################
-function configure_game_server_clang(){
+configure_game_server_clang(){
     check_nano
     if [ -s ${str_game_dir}/config.json ]; then
         nano ${str_game_dir}/config.json
@@ -396,7 +425,7 @@ function configure_game_server_clang(){
     fi
 }
 ############################### uninstall function ##################################
-function uninstall_game_server_clang(){
+uninstall_game_server_clang(){
     fun_clang.cn
     if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
         echo "============== Uninstall Game-Server(XiaoBao) =============="
@@ -440,70 +469,38 @@ function uninstall_game_server_clang(){
     echo ""
 }
 ############################### update function ##################################
-function update_game_server_clang(){
+update_game_server_clang(){
     fun_clang.cn
-    check_curl
-    remote_version=`curl -s ${str_remote_install_ver} | sed -n 1p`
-    install_shell=$(cd "$(dirname '$0')"; pwd)
-    if [ "${version}" != "${remote_version}" ];then
-        echo "============== Update Game-Server(XiaoBao) install shell =============="
-        wget -q --no-check-certificate ${str_install_shell} -O ${install_shell}/install-game-server.sh
-    fi
     if [ -s /etc/init.d/game-server ] || [ -s ${str_game_dir}/game-server ] ; then
         echo "============== Update Game-Server(XiaoBao) =============="
         checkos
         check_centosversion
         check_os_bit
         killall game-server
-        remote_shell_version=`curl -s ${str_install_shell} | sed -n '/'^version'/p' | cut -d\" -f2`
-        remote_init_version=`curl -s ${program_init_download_url} | sed -n '/'^version'/p' | cut -d\" -f2`
-        local_init_version=`sed -n '/'^version'/p' /etc/init.d/kcp-server | cut -d\" -f2`
-        install_shell=${strPath}
-        if [ ! -z ${remote_shell_version} ] || [ ! -z ${remote_init_version} ];then
-            update_flag="false"
-            if [[ "${version}" < "${remote_shell_version}" ]];then
-                echo "========== Update Game-Server(XiaoBao) install-game-server.sh =========="
-                if ! wget --no-check-certificate ${str_install_shell} -O ${install_shell}/install-game-server.sh; then
-                    echo "Failed to download install-game-server.sh file!"
-                    exit 1
-                else
-                    echo -e "${COLOR_GREEN}install-kcp-server.sh Update successfully !!!${COLOR_END}"
-                    update_flag="true"
-                fi
-            fi
-            if [[ "${local_init_version}" < "${remote_init_version}" ]];then
-                echo "========== Update kcp-Server(XiaoBao) /etc/init.d/game-server =========="
+        remote_init_version=`wget --no-check-certificate -qO- ${program_init_download_url} | sed -n '/'^version'/p' | cut -d\" -f2`
+        local_init_version=`sed -n '/'^version'/p' /etc/init.d/game-server | cut -d\" -f2`
+        if [ ! -z ${remote_init_version} ];then
+            if [[ "${local_init_version}" != "${remote_init_version}" ]];then
+                echo "========== Update Game-Server(XiaoBao) /etc/init.d/game-server =========="
                 if ! wget --no-check-certificate ${program_init_download_url} -O /etc/init.d/game-server; then
                     echo "Failed to download game-server.init file!"
                     exit 1
                 else
-                    echo -e "${COLOR_GREEN}/etc/init.d/kcp-server Update successfully !!!${COLOR_END}"
-                    update_flag="true"
+                    echo -e "${COLOR_GREEN}/etc/init.d/game-server Update successfully !!!${COLOR_END}"
                 fi
-            fi
-            if [ "${update_flag}" == 'true' ]; then
-                echo -e "${COLOR_GREEN}Update shell successfully !!!${COLOR_END}"
-                echo ""
-                echo -e "${COLOR_GREEN}Please Re-run${COLOR_END} ${COLOR_PINKBACK_WHITEFONT}$0 update${COLOR_END}"
-                echo ""
-                exit 1
             fi
         fi
         [ ! -d ${str_game_dir} ] && mkdir -p ${str_game_dir}
         rm -f /usr/bin/game-server ${str_game_dir}/game-server /root/game-server /root/game-server.log /etc/init.d/game-server
         if [ "${Is_64bit}" == 'y' ] ; then
-            if [ ! -s /root/game-server ]; then
-                if ! wget ${game_x64_download_url} -O ${str_game_dir}/game-server; then
-                    echo "Failed to download game-server file!"
-                    exit 1
-                fi
+            if ! wget --no-check-certificate ${game_x64_download_url} -O ${str_game_dir}/game-server; then
+                echo "Failed to download game-server file!"
+                exit 1
             fi
         else
-             if [ ! -s /root/game-server ]; then
-                if ! wget ${game_x86_download_url} -O ${str_game_dir}/game-server; then
-                    echo "Failed to download game-server file!"
-                    exit 1
-                fi
+            if ! wget --no-check-certificate ${game_x86_download_url} -O ${str_game_dir}/game-server; then
+                echo "Failed to download game-server file!"
+                exit 1
             fi
         fi
         [ ! -x ${str_game_dir}/game-server ] && chmod 755 ${str_game_dir}/game-server
@@ -529,6 +526,8 @@ function update_game_server_clang(){
 clear
 rootness
 strPath=`pwd`
+pre_install_packs
+shell_update
 # Initialization
 action=$1
 [  -z $1 ]
