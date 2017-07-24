@@ -23,7 +23,7 @@ CONFIGFILE=${ProgramPath}/config.json
 LOGFILE=${ProgramPath}/game-server.log
 SCRIPTNAME=/etc/init.d/$NAME
 program_version=`${BIN} -version`
-version="1.1"
+version="1.2"
 RET_VAL=0
 
 [ -x $BIN ] || exit 0
@@ -59,7 +59,7 @@ fun_start(){
         return 0
     fi
     fun_load_config
-    echo -n "Starting ${ProgramName}(${program_version})..."
+    echo -n "Starting ${ProgramName}..."
     ${BIN} -c ${CONFIGFILE} > ${LOGFILE} 2>&1 &
     sleep 1
     if ! fun_check_run; then
@@ -103,7 +103,7 @@ fun_config(){
 }
 
 fun_version(){
-    echo "${ProgramName} version ${program_version}"
+    echo "${program_version}"
     return 0
 }
 

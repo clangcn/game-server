@@ -7,14 +7,15 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="7.0"
+version="7.1"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server
 game_x86_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server-386
 program_init_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/init/game-server.init
 str_install_shell=https://raw.githubusercontent.com/clangcn/game-server/master/install-game-server.sh
 shell_update(){
-    fun_clangcn "clear"
+    clear
+    fun_clang.cn
     echo "Check updates for shell..."
     remote_shell_version=`wget --no-check-certificate -qO- ${str_install_shell} | sed -n '/'^version'/p' | cut -d\" -f2`
     if [ ! -z ${remote_shell_version} ]; then
@@ -176,64 +177,13 @@ fun_randstr(){
   echo $strRandomPass
 }
 # ====== check packs ======
-check_nano(){
-    nano -V
-    if [[ $? -le 1 ]] ;then
-        echo " Run nano success"
-    else
-        echo " Run nano failed"
-        if [ "${OS}" == 'CentOS' ]; then
-            echo " Install centos nano ..."
-            yum -y install nano
-        else
-            echo " Install debian/ubuntu nano ..."
-            apt-get update -y
-            apt-get install -y nano
-        fi
-    fi
-    echo $result
-}
-check_iptables(){
-    iptables -V
-    if [[ $? -le 1 ]] ;then
-        echo " Run iptables success"
-    else
-        echo " Run iptables failed"
-        if [ "${OS}" == 'CentOS' ]; then
-            echo " Install centos iptables ..."
-            yum -y install iptables policycoreutils libpcap libpcap-devel
-        else
-            echo " Install debian/ubuntu iptables ..."
-            apt-get update -y
-            apt-get install -y iptables libpcap-dev
-        fi
-    fi
-    echo $result
-}
-check_curl(){
-    curl -V
-    if [[ $? -le 1 ]] ;then
-        echo " Run curl success"
-    else
-        echo " Run curl failed"
-        if [ "${OS}" == 'CentOS' ]; then
-            echo " Install centos curl ..."
-            yum -y install curl curl-devel
-        else
-            echo " Install debian/ubuntu curl ..."
-            apt-get update -y
-            apt-get install -y curl
-        fi
-    fi
-    echo $result
-}
-
-# ====== pre_install ======
 pre_install_packs(){
     local wget_flag=''
     local killall_flag=''
     local netstat_flag=''
     local curl_flag=''
+    local iptables_flag=''
+    local vim_flag=''
     wget --version > /dev/null 2>&1
     wget_flag=$?
     killall -V >/dev/null 2>&1
@@ -242,15 +192,21 @@ pre_install_packs(){
     netstat_flag=$?
     curl -V > /dev/null 2>&1
     curl_flag=$?
-    if [[ ${wget_flag} -gt 1 ]] || [[ ${killall_flag} -gt 1 ]] || [[ ${netstat_flag} -gt 6 ]] || [[ ${curl_flag} -gt 1 ]];then
+    iptables -V > /dev/null 2>&1
+    iptables_flag=$?
+    vim --version > /dev/null 2>&1
+    vim_flag=$?
+    if [[ ${wget_flag} -gt 1 ]] || [[ ${killall_flag} -gt 1 ]] || [[ ${netstat_flag} -gt 6 ]] || [[ ${curl_flag} -gt 1 ]] || [[ ${iptables_flag} -gt 1 ]] || [[ ${vim_flag} -gt 1 ]];then
         echo -e "${COLOR_GREEN} Install support packs...${COLOR_END}"
         if [ "${OS}" == 'CentOS' ]; then
-            yum install -y wget psmisc net-tools curl-devel
+            yum install -y wget psmisc net-tools curl-devel iptables policycoreutils libpcap libpcap-devel vim
         else
-            apt-get -y update && apt-get -y install wget psmisc net-tools curl
+            apt-get -y update && apt-get -y install wget psmisc net-tools curl iptables libpcap-dev vim
         fi
     fi
 }
+
+# ====== pre_install ======
 pre_install_clang(){
     #config setting
     echo " Please input your Game-Server(XiaoBao) server_port and password"
@@ -258,7 +214,6 @@ pre_install_clang(){
     sshport=`netstat -anp |grep ssh | grep '0.0.0.0:'|cut -d: -f2| awk 'NR==1 { print $1}'`
     #defIP=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.' | cut -d: -f2 | awk 'NR==1 { print $1}'`
     #if [ "${defIP}" = "" ]; then
-        check_curl
         defIP=$(curl -s -4 ip.clang.cn)
     #fi
     IP="0.0.0.0"
@@ -365,7 +320,6 @@ EOF
     fi
 
     if [ "$set_iptables" == 'y' ]; then
-        check_iptables
         # iptables config
         iptables -I INPUT -p udp --dport ${serverport} -j ACCEPT
         iptables -I INPUT -p tcp --dport ${serverport} -j ACCEPT
@@ -417,9 +371,8 @@ install_game_server_clang(){
 }
 ############################### configure function ##################################
 configure_game_server_clang(){
-    check_nano
     if [ -s ${str_game_dir}/config.json ]; then
-        nano ${str_game_dir}/config.json
+        vim ${str_game_dir}/config.json
     else
         echo "Game-Server(XiaoBao) configuration file not found!"
     fi
