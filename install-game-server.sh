@@ -227,7 +227,7 @@ pre_install_clang(){
     fi
     echo ""
     ssmethod="chacha20"
-    echo "Please input Encryption method(chacha20-ierf, chacha20, aes-256-cfb, bf-cfb, des-cfb, rc4)"
+    echo "Please input Encryption method(chacha20-ietf, chacha20, aes-256-cfb, bf-cfb, des-cfb, rc4)"
     read -p "(Default method: ${ssmethod}):" ssmethod
     if [ "${ssmethod}" = "" ]; then
         ssmethod="chacha20"
