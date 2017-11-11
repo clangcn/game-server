@@ -290,14 +290,14 @@ EOF
     rm -f ${str_game_dir}/game-server
     if [ "${Is_64bit}" == 'y' ] ; then
         if [ ! -s ${str_game_dir}/game-server ]; then
-            if ! wget ${game_x64_download_url} -O ${str_game_dir}/game-server; then
+            if ! wget --no-check-certificate ${game_x64_download_url} -O ${str_game_dir}/game-server; then
                 echo "Failed to download game-server file!"
                 exit 1
             fi
         fi
     else
          if [ ! -s ${str_game_dir}/game-server ]; then
-            if ! wget ${game_x86_download_url} -O ${str_game_dir}/game-server; then
+            if ! wget --no-check-certificate ${game_x86_download_url} -O ${str_game_dir}/game-server; then
                 echo "Failed to download game-server file!"
                 exit 1
             fi
