@@ -7,7 +7,7 @@ export PATH
 #   Author: Clang <admin@clangcn.com>
 #   Intro:  http://clang.cn
 #===============================================================================================
-version="7.2"
+version="7.3"
 str_game_dir="/usr/local/game-server"
 game_x64_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server
 game_x86_download_url=https://raw.githubusercontent.com/clangcn/game-server/master/latest/game-server-386
