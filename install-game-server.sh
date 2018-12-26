@@ -16,13 +16,13 @@ str_install_shell=https://raw.githubusercontent.com/clangcn/game-server/master/i
 shell_update(){
     clear
     fun_clang.cn
-    echo "Check updates for shell..."
+    echo "Checking updates for shell..."
     remote_shell_version=`wget --no-check-certificate -qO- ${str_install_shell} | sed -n '/'^version'/p' | cut -d\" -f2`
     if [ ! -z ${remote_shell_version} ]; then
         if [[ "${version}" != "${remote_shell_version}" ]];then
-            echo -e "${COLOR_GREEN}Found a new version,update now!!!${COLOR_END}"
+            echo -e "${COLOR_GREEN}Found a new version, update now!!!${COLOR_END}"
             echo
-            echo -n "Update shell ..."
+            echo -n "Updating shell ..."
             if ! wget --no-check-certificate -qO $0 ${str_install_shell}; then
                 echo -e " [${COLOR_RED}failed${COLOR_END}]"
                 echo
@@ -86,7 +86,7 @@ checkos(){
     elif grep -Eqi "Ubuntu" /etc/issue || grep -Eq "Ubuntu" /etc/*-release; then
         OS=Ubuntu
     else
-        echo "Not support OS, Please reinstall OS and retry!"
+        echo "Not a supported OS. Please reinstall OS and retry!"
         exit 1
     fi
 }
@@ -123,7 +123,7 @@ check_os_bit(){
 
 check_centosversion(){
 if centosversion 5; then
-    echo "Not support CentOS 5.x, please change to CentOS 6,7 or Debian or Ubuntu and try again."
+    echo "Do not support CentOS 5.x. Please change to CentOS 6/7, Debian, or Ubuntu and try again."
     exit 1
 fi
 }
@@ -143,7 +143,7 @@ fun_check_port(){
         checkServerPort=`netstat -ntul | grep "\b:${strServerPort}\b"`
         if [ -n "${checkServerPort}" ]; then
             echo ""
-            echo -e "${COLOR_RED}Error:${COLOR_END} Port ${COLOR_GREEN}${strServerPort}${COLOR_END} is ${COLOR_PINK}mused${COLOR_END},view relevant port:"
+            echo -e "${COLOR_RED}Error:${COLOR_END} Port ${COLOR_GREEN}${strServerPort}${COLOR_END} is ${COLOR_PINK}mused${COLOR_END}, view relevant port:"
             #netstat -apn | grep "\b:${strServerPort}\b"
             netstat -ntulp | grep "\b:${strServerPort}\b"
             fun_input_port
@@ -160,7 +160,7 @@ fun_check_port(){
 fun_input_port(){
     server_port="8838"
     echo ""
-    echo -e "Please input Server Port [1-65535](Don't the same SSH Port ${COLOR_RED}${sshport}${COLOR_END})"
+    echo -e "Please input Server Port [1-65535](Don't use the same port as SSH Port ${COLOR_RED}${sshport}${COLOR_END})"
     read -p "(Default Server Port: ${server_port}):" serverport
     [ -z "${serverport}" ] && serverport="${server_port}"
     fun_check_port "${serverport}"
@@ -197,7 +197,7 @@ pre_install_packs(){
     vim --version > /dev/null 2>&1
     vim_flag=$?
     if [[ ${wget_flag} -gt 1 ]] || [[ ${killall_flag} -gt 1 ]] || [[ ${netstat_flag} -gt 6 ]] || [[ ${curl_flag} -gt 1 ]] || [[ ${iptables_flag} -gt 1 ]] || [[ ${vim_flag} -gt 1 ]];then
-        echo -e "${COLOR_GREEN} Install support packs...${COLOR_END}"
+        echo -e "${COLOR_GREEN} Installing support packs...${COLOR_END}"
         if [ "${OS}" == 'CentOS' ]; then
             yum install -y wget psmisc net-tools curl-devel iptables policycoreutils libpcap libpcap-devel vim
         else
@@ -239,15 +239,15 @@ pre_install_clang(){
 
         case "${set_iptables}" in
         y|Y|Yes|YES|yes|yES|yEs|YeS|yeS)
-        echo "You will set iptables!"
+        echo "iptables will be set!"
         set_iptables="y"
         ;;
         n|N|No|NO|no|nO)
-        echo "You will NOT set iptables!"
+        echo "iptables will NOT be set!"
         set_iptables="n"
         ;;
         *)
-        echo "The iptables is not set!"
+        echo "The iptables will not be set!"
         set_iptables="n"
         esac
 
@@ -384,22 +384,22 @@ uninstall_game_server_clang(){
         echo "============== Uninstall Game-Server(XiaoBao) =============="
         save_config="n"
         echo  -e "${COLOR_YELOW}Do you want to keep the configuration file?${COLOR_END}"
-        read -p "(if you want please input: y,Default [no]):" save_config
+        read -p "(if you want, please input: y,Default [no]):" save_config
 
         case "${save_config}" in
         y|Y|Yes|YES|yes|yES|yEs|YeS|yeS)
         echo ""
-        echo "You will keep the configuration file!"
+        echo "The configuration file will be kept!"
         save_config="y"
         ;;
         n|N|No|NO|no|nO)
         echo ""
-        echo "You will NOT to keep the configuration file!"
+        echo "Old configuration file will be deleted!"
         save_config="n"
         ;;
         *)
         echo ""
-        echo "will NOT to keep the configuration file!"
+        echo "Will NOT keep the configuration file!"
         save_config="n"
         esac
         checkos
@@ -415,9 +415,9 @@ uninstall_game_server_clang(){
         else
             rm -f ${str_game_dir}/game-server ${str_game_dir}/game-server.log
         fi
-        echo "Game-Server(XiaoBao) uninstall success!"
+        echo "Uninstall Game-Server(XiaoBao) successfully!"
     else
-        echo "Game-Server(XiaoBao) Not install!"
+        echo "Game-Server(XiaoBao) is not installed!"
     fi
     echo ""
 }
@@ -470,9 +470,9 @@ update_game_server_clang(){
         fi
         /etc/init.d/game-server start
         ${str_game_dir}/game-server -version
-        echo "Game-Server(XiaoBao) update success!"
+        echo "Update Game-Server(XiaoBao) successfully!"
     else
-        echo "Game-Server(XiaoBao) Not install!"
+        echo "Game-Server(XiaoBao) is not installed!"
     fi
     echo ""
 }
